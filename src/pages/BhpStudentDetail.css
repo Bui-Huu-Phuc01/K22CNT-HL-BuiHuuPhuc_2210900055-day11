@@ -1,0 +1,50 @@
+.student-detail {
+    padding: 20px;
+    max-width: 500px;
+    margin: auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.student-form {
+    display: grid;
+    gap: 15px;
+}
+
+.student-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+}
+
+.student-form input,
+.student-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.form-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.form-actions button[type="submit"] {
+    background: #4caf50;
+    color: white;
+}
+
+.form-actions button[type="button"] {
+    background: #f44336;
+    color: white;
+}
