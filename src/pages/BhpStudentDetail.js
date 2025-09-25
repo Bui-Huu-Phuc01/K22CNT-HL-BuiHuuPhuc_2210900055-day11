@@ -2,44 +2,36 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStudents } from "../context/BhpStudentsContext";
-import "./BhpStudentDetail.css"; // tạo file css riêng nếu muốn style
-
-const defaultStudent = {
-    maSV: "",
-    hoTen: "",
-    lop: "",
-    nganh: "",
-    gpa: "",
-    trangthai: "",
-    soTinChiDat: "",
-    soTinChiNo: "",
-};
+import { TRANG_THAI, defaultStudent as defaultForm } from "../constants";
 
 export default function BhpStudentDetail() {
-    const { id } = useParams(); // lấy id từ URL
+    const { masv } = useParams(); // lấy param từ route
     const navigate = useNavigate();
     const { students, addStudent, updateStudent } = useStudents();
 
-    const [form, setForm] = useState(defaultStudent);
-    const isEdit = Boolean(id);
+    const isEdit = Boolean(masv);
 
-    // Nếu là sửa, load thông tin sinh viên cũ
+    const [form, setForm] = useState({ ...defaultForm, id: crypto.randomUUID() });
+
+    // Load dữ liệu khi sửa
     useEffect(() => {
         if (isEdit) {
-            const existing = students.find((s) => s.id === id);
+            const existing = students.find((s) => s.id === masv);
             if (existing) setForm(existing);
         }
-    }, [id, isEdit, students]);
+    }, [masv, isEdit, students]);
 
+    // Xử lý input
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Xử lý submit
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!form.maSV || !form.hoTen) {
+        if (!form?.maSV || !form?.hoTen) {
             alert("Mã SV và Họ tên là bắt buộc!");
             return;
         }
@@ -49,29 +41,30 @@ export default function BhpStudentDetail() {
             gpa: Number(form.gpa || 0),
             soTinChiDat: Number(form.soTinChiDat || 0),
             soTinChiNo: Number(form.soTinChiNo || 0),
+            updatedAt: new Date().toISOString(),
         };
 
         try {
             if (isEdit) {
-                const realId = form.id ?? id; // fix lỗi khi form chưa có id
-                await updateStudent(realId, payload);
+                await updateStudent(form.id, payload);
                 alert("Cập nhật thành công!");
             } else {
+                payload.createdAt = new Date().toISOString();
                 await addStudent(payload);
                 alert("Thêm mới thành công!");
             }
             navigate("/danh-sach-sinh-vien");
         } catch (err) {
-            console.error("Lỗi khi lưu:", err);
+            console.error(err);
             alert("Không thể lưu dữ liệu!");
         }
     };
 
     return (
-        <div className="student-detail">
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <h2>{isEdit ? "Sửa sinh viên" : "Thêm sinh viên"}</h2>
 
-            <form className="student-form" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
                 <label>
                     Mã SV *
                     <input
@@ -136,19 +129,19 @@ export default function BhpStudentDetail() {
                 <label>
                     Trạng thái
                     <select
-                        name="trangthai"
-                        value={form.trangthai}
+                        name="trangThai"
+                        value={form.trangThai}
                         onChange={handleChange}
                     >
-                        <option value="">-- Chọn trạng thái --</option>
-                        <option value="Đang học">Đang học</option>
-                        <option value="Bảo lưu">Bảo lưu</option>
-                        <option value="Tốt nghiệp">Tốt nghiệp</option>
-                        <option value="Thôi học">Thôi học</option>
+                        {TRANG_THAI.map((x) => (
+                            <option key={x} value={x}>
+                                {x}
+                            </option>
+                        ))}
                     </select>
                 </label>
 
-                <div className="form-actions">
+                <div style={{ display: "flex", gap: 8 }}>
                     <button type="submit">💾 Lưu</button>
                     <button type="button" onClick={() => navigate(-1)}>
                         ❌ Hủy
